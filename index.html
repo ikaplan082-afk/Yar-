@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#070a10">
+<meta name="description" content="Street Racing Türkiye - mobil arcade yarış oyunu">
+<title>Street Racing Türkiye</title>
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud">
+  <div class="topbar">
+    <div class="panel speed"><small>HIZ</small><div><span id="speed">0</span> <span style="font-size:11px;opacity:.55">KM/H</span></div><div id="gear">VİTES 1</div></div>
+    <div class="panel progress"><div class="row"><span>YOL</span><span id="distance">0.0 KM</span></div><div class="bar"><div id="roadProgress" class="roadProgress"></div></div><div class="row" style="margin:7px 0 0"><span>EN YÜKSEK</span><span id="best">0 KM/H</span></div><div class="bar" style="margin-top:5px"><div id="nitroBar" class="nitro"></div></div></div>
+    <button id="pauseBtn" class="pause">Ⅱ</button>
+  </div>
+  <div id="hint">SOL / SAĞ ile yön ver • GAZ ile hızlan • NİTRO ile hızlan</div>
+  <div class="controls"><div class="steering"><button class="control" id="leftBtn">‹</button><button class="control" id="rightBtn">›</button></div><div class="actions"><button class="control small" id="brakeBtn">FREN</button><button class="control small" id="gasBtn">GAZ</button><button class="control small" id="nitroBtn">NİTRO</button></div></div>
+</div>
+<div id="menu" class="show"><div class="menuCard"><div class="logo">STREET RACING <span>TÜRKİYE</span></div><div class="subtitle">MOBİL ARCADE RACING</div><button class="menuBtn primary" id="startBtn">YARIŞA BAŞLA</button><button class="menuBtn" id="resetBtn">İLERLEMEYİ SIFIRLA</button><div class="stats"><span>ARABA<br><b>STR-01</b></span><span>PİST<br><b>ŞEHİR</b></span><span>MOD<br><b>TEST</b></span></div></div></div>
+<div id="rotate"><div><div style="font-size:48px">↻</div><h2>Cihazı yatay çevir</h2><p style="opacity:.6">Street Racing Türkiye yatay ekranda oynanmak üzere tasarlanmıştır.</p></div></div>
+<script src="./js/game.js"></script>
+</body>
+</html>
