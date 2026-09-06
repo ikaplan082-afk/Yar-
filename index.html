@@ -9,7 +9,7 @@
 <style>
 :root{--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070a10;font-family:Arial,Helvetica,sans-serif;color:#fff;touch-action:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070a10;font-family:Arial,Helvetica,sans-serif;color:#fff;touch-action:none;-webkit-user-select:none;user-select:none}
 body{position:fixed;inset:0}
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #hud{position:absolute;inset:0;pointer-events:none}
@@ -27,7 +27,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #hint{position:absolute;top:88px;left:50%;transform:translateX(-50%);padding:8px 14px;border-radius:30px;background:rgba(0,0,0,.45);font-size:11px;letter-spacing:.5px;opacity:0;transition:opacity .4s;white-space:nowrap}
 .controls{position:absolute;left:0;right:0;bottom:calc(12px + var(--safe-bottom));display:flex;justify-content:space-between;align-items:end;padding:0 18px;pointer-events:none}
 .steering,.actions{display:flex;gap:12px;pointer-events:auto}
-.control{width:76px;height:76px;border-radius:22px;border:1px solid rgba(255,255,255,.18);background:rgba(10,13,20,.7);color:#fff;font-weight:900;font-size:25px;box-shadow:0 8px 25px rgba(0,0,0,.3);backdrop-filter:blur(8px);user-select:none}
+.control{width:76px;height:76px;position:relative;z-index:30;touch-action:none;-webkit-touch-callout:none;border-radius:22px;border:1px solid rgba(255,255,255,.18);background:rgba(10,13,20,.7);color:#fff;font-weight:900;font-size:25px;box-shadow:0 8px 25px rgba(0,0,0,.3);backdrop-filter:blur(8px);user-select:none}
 .control.small{font-size:13px;letter-spacing:1px}
 .control.active,.control:active{transform:scale(.95);background:rgba(45,55,75,.9)}
 #nitroBtn{width:82px;background:rgba(35,24,90,.78);border-color:rgba(130,110,255,.4)}
@@ -162,10 +162,23 @@ function setKey(name,val){
 
 function bindHold(id,name){
   const el=$(id);
-  const down=e=>{e.preventDefault();el.classList.add("active");setKey(name,true)};
-  const up=e=>{e.preventDefault();el.classList.remove("active");setKey(name,false)};
-  ["pointerdown","touchstart"].forEach(t=>el.addEventListener(t,down,{passive:false}));
-  ["pointerup","pointercancel","pointerleave","touchend"].forEach(t=>el.addEventListener(t,up,{passive:false}));
+  const press=e=>{
+    e.preventDefault();
+    if(e.pointerId!==undefined && el.setPointerCapture){
+      try{el.setPointerCapture(e.pointerId)}catch(_){}
+    }
+    el.classList.add("active");
+    keys[name]=true;
+  };
+  const release=e=>{
+    e.preventDefault();
+    el.classList.remove("active");
+    keys[name]=false;
+  };
+  el.addEventListener("pointerdown",press,{passive:false});
+  el.addEventListener("pointerup",release,{passive:false});
+  el.addEventListener("pointercancel",release,{passive:false});
+  el.addEventListener("lostpointercapture",release,{passive:false});
 }
 bindHold("leftBtn","left");
 bindHold("rightBtn","right");
@@ -187,6 +200,18 @@ addEventListener("keyup",e=>{
   if(["ArrowUp","w","W"].includes(e.key))setKey("gas",false);
   if(["ArrowDown","s","S"].includes(e.key))setKey("brake",false);
   if(e.key===" "||e.key==="Shift")setKey("nitro",false);
+});
+
+addEventListener("blur",()=>{
+  Object.keys(keys).forEach(k=>keys[k]=false);
+  document.querySelectorAll(".control").forEach(b=>b.classList.remove("active"));
+});
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){
+    Object.keys(keys).forEach(k=>keys[k]=false);
+    document.querySelectorAll(".control").forEach(b=>b.classList.remove("active"));
+  }
 });
 
 let traffic=[];
@@ -554,8 +579,8 @@ function update(dt){
   const gas=keys.gas?1:0;
   const brake=keys.brake?1:0;
 
-  if(gas)state.speed+=state.acceleration*dt;
-  else state.speed-=22*dt;
+  if(gas)state.speed+=state.acceleration*1.35*dt;
+  else state.speed-=12*dt;
   if(brake)state.speed-=state.braking*dt;
 
   const usingNitro=keys.nitro && state.nitro>0 && state.speed>30;
